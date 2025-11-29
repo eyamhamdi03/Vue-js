@@ -1,5 +1,5 @@
 <script setup>
-import CardTemplate from '@/components/Card-template.vue'
+import CardTemplate from '@/components/common/Card-template.vue'
 </script>
 <template>
   <section class="py-4">

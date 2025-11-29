@@ -1,6 +1,6 @@
 <script setup>
 import logo from '@/assets/images/logo.png'
-import NavLink from '@/components/Nav-link.vue'
+import NavLink from '@/components/common/Nav-link.vue'
 
 const links = [
   { text: 'Home', href: '/', isActive: true },
