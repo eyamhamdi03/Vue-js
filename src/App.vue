@@ -1,12 +1,8 @@
 <script setup>
 import NavBar from '@/components/common/Nav-bar.vue'
-import HeroSection from '@/components/sections/Hero-section.vue'
-import CardsSection from './components/sections/Cards-section.vue'
-import JobListing from './components/sections/Job-listing.vue'
+import { RouterView } from 'vue-router'
 </script>
 <template>
   <NavBar />
-  <HeroSection />
-  <CardsSection />
-  <JobListing :limit="3" :showButton="true" />
+  <RouterView />
 </template>

@@ -20,12 +20,12 @@ defineProps({
     <h2 class="text-2xl font-bold">{{ title }}</h2>
     <p class="mt-2 mb-4">{{ content }}</p>
     <div class="flex justify-end">
-      <a
-        href="jobs.html"
+      <RouterLink
+        to="/jobs"
         class="inline-block text-white rounded-lg px-4 py-2 hover:opacity-80 bg-gray-900"
       >
         {{ button }}
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>
