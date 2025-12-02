@@ -1,11 +1,12 @@
 <script setup>
 import axios from 'axios'
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
 const router = useRouter()
-
+const route = useRoute()
+const jobId = route.params.id
 
 const form = reactive({
     type: 'Full-Time',
@@ -19,15 +20,22 @@ const form = reactive({
         contactEmail: '',
         contactPhone: ''
     }
-});
-const toast = useToast();
+})
+
+const state = reactive({
+    isLoading: true,
+    job: {}
+})
+
+const toast = useToast()
 
 const types = [
     "Full-Time",
     "Part-Time",
     "Remote",
     "Internship"
-];
+]
+
 const salaries = [
     "Under $50K",
     "$50K - $60K",
@@ -40,9 +48,10 @@ const salaries = [
     "$150K - $175K",
     "$175K - $200K",
     "Over $200K"
-];
+]
+
 const handleSubmit = async () => {
-    const newJob = {
+    const updatedJob = {
         type: form.type,
         name: form.name,
         description: form.description,
@@ -51,26 +60,50 @@ const handleSubmit = async () => {
         company: {
             name: form.company.name,
             description: form.company.description,
-            contact_email: form.company.contact_email,
-            contact_phone: form.company.contact_phone
+            contact_email: form.company.contactEmail,
+            contact_phone: form.company.contactPhone
         }
     }
+
     try {
-        const respone = await axios.post('/api/jobs', newJob);
-        toast.success('Job added successfully!');
-        router.push(`/job/${respone.data.id}`);
+        const response = await axios.patch(`/api/jobs/${jobId}`, updatedJob)
+        toast.success('Job edited successfully!')
+        router.push(`/jobs/${response.data.id}`)
     } catch (error) {
-        toast.error('Error adding job:', error)
+        console.error('Error editing job:', error)
+        toast.error('Error editing job. Please try again.')
     }
-} 
+}
+
+onMounted(async () => {
+    try {
+        const response = await axios.get(`/api/jobs/${jobId}`)
+        state.job = response.data
+
+        form.type = state.job.type
+        form.name = state.job.name
+        form.description = state.job.description
+        form.salary = state.job.salary
+        form.location = state.job.location
+        form.company.name = state.job.company.name
+        form.company.description = state.job.company.description
+        form.company.contactEmail = state.job.company.contact_email
+        form.company.contactPhone = state.job.company.contact_phone
+    } catch (error) {
+        console.error('Error fetching job details:', error)
+    } finally {
+        state.isLoading = false
+    }
+})
 </script>
+
 
 <template>
     <section class="bg-blue-50 px-8 py-10">
         <div class="container m-auto max-w-2xl">
             <div class="bg-white px-6 py-8 mb-4 shadow-md rounded-md m-4 md:m-0">
                 <form @submit.prevent="handleSubmit">
-                    <h2 class="text-3xl text-center font-semibold mb-6">Add Job</h2>
+                    <h2 class="text-3xl text-center font-semibold mb-6">Edit Job</h2>
 
                     <div class="mb-4">
                         <label for="type" class="block text-gray-700 font-bold mb-2">Job Type</label>
@@ -143,7 +176,7 @@ const handleSubmit = async () => {
                         <button
                             class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
                             type="submit">
-                            Add Job
+                            Update Job
                         </button>
                     </div>
 

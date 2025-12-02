@@ -2,11 +2,12 @@
 import { onMounted, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import { useToast } from 'vue-toastification'
 
 const route = useRoute()
 const router = useRouter()
 const jobId = route.params.id
-
+const toast = useToast();
 const state = reactive({
   isLoading: true,
   error: false,
@@ -27,43 +28,37 @@ onMounted(async () => {
 
 const deleteJob = async () => {
   if (!confirm("Are you sure you want to delete this job?")) return
-
-  await fetch(`/api/jobs/${jobId}`, {
-    method: "DELETE"
-  })
-
-  router.push("/jobs")
+  try {
+    await axios.delete(`/api/jobs/${jobId}`);
+    toast.success('Job deleted successfully!');
+    router.push("/jobs")
+  }
+  catch (error) {
+    toast.error('Error deleting job:', error)
+  }
 }
 </script>
 
 <template>
-  <!-- LOADING STATE -->
   <div v-if="state.isLoading" class="flex justify-center py-20">
     <PulseLoader />
   </div>
 
-  <!-- ERROR STATE -->
   <div v-else-if="state.error" class="text-center text-red-600 py-20 text-lg">
     Failed to fetch job details.
   </div>
 
   <!-- MAIN CONTENT -->
-  <section
-    v-else
-    class="bg-green-50 mx-auto py-6 px-4 max-w-5xl"
-  >
+  <section v-else class="bg-green-50 mx-auto py-6 px-4 max-w-5xl">
     <!-- Back Button -->
-    <RouterLink
-      to="/jobs"
-      class="flex items-center gap-2 text-green-600 hover:text-green-700 mb-4"
-    >
+    <RouterLink to="/jobs" class="flex items-center gap-2 text-green-600 hover:text-green-700 mb-4">
       <i class="pi pi-arrow-left text-lg"></i>
       Back to Job Listings
     </RouterLink>
 
     <!-- Grid Layout -->
     <div class="grid grid-cols-1 md:grid-cols-[70%_30%] gap-6">
-      
+
       <!-- MAIN CONTENT -->
       <main>
         <div class="bg-white p-6 rounded-lg shadow-md text-center md:text-left">
@@ -117,19 +112,15 @@ const deleteJob = async () => {
 
           <div class="grid grid-cols-2 gap-3">
             <!-- Edit Button -->
-            <RouterLink
-              :to="`/jobs/${jobId}/edit`"
-              class="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-semibold"
-            >
+            <RouterLink :to="`/jobs/${jobId}/edit`"
+              class="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md font-semibold">
               <i class="pi pi-pencil"></i>
               Edit
             </RouterLink>
 
             <!-- Delete Button -->
-            <button
-              @click="deleteJob"
-              class="flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold"
-            >
+            <button @click="deleteJob"
+              class="flex justify-center items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold">
               <i class="pi pi-trash"></i>
               Delete
             </button>
